@@ -1,5 +1,5 @@
 Clapeyron Database File,,,,,
-ogSAFT Unlike Parameters,,,,,
+name:ogSAFT,paramtype:pair,grouptype:nothing
 species1,SMILES1,species2,SMILES2,k,source
 water,,ethylene glycol,,0.0302,
 hexane,,TEG,,0.139,

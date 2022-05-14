@@ -1,5 +1,5 @@
 Clapeyron Database File,,,,,,,,
-sCKSAFT Assoc Parameters,,,,,,,,
+name:sCKSAFT,paramtype:assoc,grouptype:nothing
 species1,SMILES1,site1,species2,SMILES2,site2,epsilon_assoc,bondvol,source
 acetic acid,CO,H,acetic acid,CO,H,5810.5,0.02884,
 propanoic acid,,H,propanoic acid,,H,5240.2,0.019998,

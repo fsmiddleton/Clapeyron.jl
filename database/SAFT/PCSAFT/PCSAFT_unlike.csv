@@ -1,5 +1,5 @@
 Clapeyron Database File,,,,,
-PCSAFT Unlike Parameters,,,,,
+name:PCSAFT,paramtype:pair,grouptype:nothing
 species1,SMILES1,species2,SMILES2,k,source
 methane,C,butane,CCCC,0.022,10.1021/ie0003887
 methane,C,pentane,CCCCC,0.024,10.1021/ie0003887

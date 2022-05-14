@@ -1,5 +1,5 @@
 Clapeyron Database File,,,,,,,,
-ogSAFT Assoc Parameters,,,,,,,,
+name:ogSAFT,paramtype:assoc,grouptype:nothing
 species1,SMILES1,site1,species2,SMILES2,site2,epsilon_assoc,bondvol,source
 methanol,,H,methanol,,e,2320.77,0.019,
 ethanol,,H,ethanol,,e,2616.52,0.012,

@@ -1,5 +1,5 @@
 Clapeyron Database File
-E-PPR78 unlike Parameters
+name:EPPR78,paramtype:pair,grouptype:EPPR78
 species1,species2,A,B
 CH3,CH2,65.54,105.7
 CH3,CH,214.9,294.9

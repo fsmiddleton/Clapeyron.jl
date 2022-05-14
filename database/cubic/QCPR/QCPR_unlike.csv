@@ -1,5 +1,5 @@
 Clapeyron Database File
-QCPR unlike Parameters
+name:QCPR,paramtype:pair,grouptype:nothing
 species1,species2,k,l
 helium,deuterium,0.45,0
 helium,hydrogen,0.17,-0.16

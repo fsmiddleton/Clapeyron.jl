@@ -1,5 +1,5 @@
 Clapeyron Database File,,,,,
-Constant translation for QCPR Like Parameters,,,,,
+name:QCPR constant translation,paramtype:single,grouptype:nothing
 species,c
 hydrogen,-3.8139e-6
 helium,-3.1791e-6

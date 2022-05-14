@@ -1,5 +1,5 @@
 Clapeyron Database File
-SanchezLacombe Like Parameters
+name:SanchezLacombe,paramtype:single,grouptype:nothing
 species,epsilon,vol,segment
 carbon dioxide,2276.66,3.638e-6,8.564
 ethane,2444.62,7.865e-6,6.653

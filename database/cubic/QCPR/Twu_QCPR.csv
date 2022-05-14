@@ -1,5 +1,5 @@
 Clapeyron Database File,,,,,
-TwuAlpha for QCPR Like Parameters,,,,,
+name:QCPR TwuAlpha,paramtype:single,grouptype:nothing
 species,DIPPR Number,L,M,N,source
 hydrogen,,156.21,-0.0062072,5.047,
 helium,,0.48558,1.7173,0.30271

@@ -1,5 +1,5 @@
 Clapeyron Database File,,,,,,,
-CPA Assoc Parameters,,,,,,,
+name:CPA,paramtype:assoc,grouptype:nothing
 species1,SMILES1,site1,species2,SMILES2,site2,epsilon_assoc,bondvol
 methanol,CO,e,methanol,CO,H,244.76,15.4
 ethanol,CCO,e,ethanol,CCO,H,215.00,8

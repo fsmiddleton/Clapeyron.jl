@@ -1,5 +1,5 @@
 Clapeyron Database File,,,,,
-CPA Unlike Parameters,,,,,
+name:CPA,paramtype:pair,grouptype:nothing
 species1,SMILES1,species2,SMILES2,k,source
 methanol,,benzene,,0.0077,
 methanol,,propane,,0.0601,

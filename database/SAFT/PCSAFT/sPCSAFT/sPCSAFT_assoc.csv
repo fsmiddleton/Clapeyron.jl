@@ -1,5 +1,5 @@
 Clapeyron Database File,,,,,,,,
-sPCSAFT Assoc Parameters,,,,,,,,
+name:sPCSAFT,paramtype:assoc,grouptype:nothing
 species1,SMILES1,site1,species2,SMILES2,site2,epsilon_assoc,bondvol,source
 methanol,CO,H,methanol,CO,e,2090.2,0.146,10.1021/ie020753p
 ethanol,CCO,H,ethanol,CCO,e,2653.4,0.032384,10.1021/ie010954d

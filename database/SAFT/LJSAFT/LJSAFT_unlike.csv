@@ -1,5 +1,5 @@
 Clapeyron Database File,,,,,,
-LJSAFT Unlike Parameters,,,,,,
+name:LJSAFT,paramtype:pair,grouptype:nothing
 species1,SMILES1,species2,SMILES2,k,zeta,source
 methane,,ethane,,0.0254,-0.0052,
 methane,,propane,,0.0703,-0.0233,

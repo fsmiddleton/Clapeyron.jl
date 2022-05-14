@@ -1,5 +1,5 @@
 Clapeyron Database File,,,,
-UNIQUAC Like Parameters,,,,
+name:UNIQUAC,paramtype:single,grouptype:nothing
 species,DIPPR Number,r,q,q_p,source
 methanol,,1.43,1.43,1.43,
 benzene,,3.19,2.4,2.4,

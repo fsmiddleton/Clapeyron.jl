@@ -1,5 +1,5 @@
 Clapeyron Database File,,,,,,
-SAFTVRMie Unlike Parameters,,,,,,
+name:SAFTVRMie,paramtype:pair,grouptype:nothing
 species1,SMILES1,species2,SMILES2,epsilon,lambda_r,source
 ethane,CC,n-decane,CCCCCCCCCC,289.06,,10.1063/1.4819787
 carbon dioxide_lafitte,O=C(=O),n-decane,CCCCCCCCCC,275.711,,10.1063/1.4819786

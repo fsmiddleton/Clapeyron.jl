@@ -1,5 +1,5 @@
 Clapeyron Database File,,,,,
-Reid Ideal Like Parameters,,,,,
+name:ReidIdeal,paramtype:single,grouptype:nothing
 species,a,b,c,d,source
 carbon dioxide,19.8,0.0734,-5.6E-05,1.72E-08,
 methane,19.25,0.0521,1.2E-05,-1.13E-08,

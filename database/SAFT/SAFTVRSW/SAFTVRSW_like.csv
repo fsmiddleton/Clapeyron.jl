@@ -1,5 +1,5 @@
 Clapeyron database,,,,,,,,,
-SAFTVRSW Like Parameters,,,,,,,,,
+name:SAFTVRSW,paramtype:single,grouptype:nothing
 species,DIPPR Number,Mw,m,sigma,epsilon,lambda,n_e,n_H,source
 methane,,16,1,4.069,157.4,1.444,0,0,
 ethane,,,1.33,4.233,224.8,1.449,0,0,

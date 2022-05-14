@@ -1,5 +1,5 @@
 ﻿Clapeyron Database File,,,,,
-Wilson Unlike Parameters,,,,,
+name:Wilson,paramtype:pair,grouptype:nothing
 species1,SMILES1,species2,SMILES2,g,source
 1-propanol,,water,,3792.90311,
 acetone,,chloroform,,485.8339464,

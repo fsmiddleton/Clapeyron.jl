@@ -1,5 +1,5 @@
 Clapeyron Database File,,,,,,
-QCPR Like Parameters,,,,,,
+name:QCPR,paramtype:single,grouptype:nothing
 species,A,B
 hydrogen,3.0696,12.682 
 deuterium,1.6501,7.309

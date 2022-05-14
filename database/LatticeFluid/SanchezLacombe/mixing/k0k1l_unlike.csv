@@ -1,5 +1,5 @@
 Clapeyron Database File
-SanchezLacombe k0-k1-l unlike Parameters
+name:SanchezLacombe,paramtype:pair,grouptype:nothing
 species1,species2,k0,k1,l
 carbon dioxide,biphenyl,0.1840,0.1580,0.0067
 carbon dioxide,naphthalene,0.1985,0.2509,-0.2162

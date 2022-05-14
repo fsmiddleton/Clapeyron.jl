@@ -1,5 +1,5 @@
 Clapeyron Database File,,,,
-COSMOSAC Like Parameters,,,,
+name:COSMOSAC,paramtype:single,grouptype:nothing
 species,DIPPR Number,epsilon,water,COOH,hb_acc,hb_don,source
 water,,70.75953333,1,0,0,0,
 ethanol,,86.592675,0,0,1,1,

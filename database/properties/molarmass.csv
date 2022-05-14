@@ -1,5 +1,5 @@
 Clapeyron Database File,,
-Molar Mases Single Params,,
+name:Molar mass,paramtype:single,grouptype:nothing
 species,DIPPR Number,Mw
 methane,1,16.04
 ethane,2,30.07

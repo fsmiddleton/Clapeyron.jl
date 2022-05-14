@@ -281,7 +281,7 @@ function createparamarrays(
     # Read the filepaths in reverse in order to ensure that unused sources do not get added.
     
     for filepath ∈ reverse(filepaths)
-        csvtype = readcsvtype(filepath)
+        name, csvtype, grouptype = _readcsvtype(filepath)
         if csvtype == groupdata
             verbose && @info("Skipping groupdata csv $filepath")
             continue
@@ -482,7 +482,7 @@ function findparamsincsv(components::Array{String,1},
     normalisecomponents = param_options.normalisecomponents
     component_delimiter = param_options.component_delimiter
 
-    csvtype = readcsvtype(filepath)
+    name, csvtype, grouptype = _readcsvtype(filepath)
     df = CSV.File(filepath; header=3, pool=0, silencewarnings=true)
     csvheaders = String.(Tables.columnnames(df))
     normalised_components = normalisestring.(components, normalisecomponents)
@@ -599,19 +599,67 @@ function normalisestring(str::AbstractString, isactivated::Bool=true; tofilter::
     return normalisedstring
 end
 
-const readcsvtype_keywords  = ["like", "single", "unlike", "pair", "assoc", "group", "groups"]
 
-function readcsvtype(filepath)
+"""
+    _readcsvtype(filepath)
+
+Reads the second line of a csv to determine parameter metadata.
+The format should be
+
+    name:{NAME},paramtype:{PARAMTYPE},grouptype:{GROUPTYPE}
+"""
+function _readcsvtype(filepath)::Tuple{String,CSVType,Union{Symbol,Nothing}}
+    words = split(replace(rstrip(getline(String(filepath), 2), ','), " " => ""), ',')
+    # Default values
+    name::String = ""
+    paramtype::Union{CSVType,Nothing} = nothing
+    grouptype::Union{Symbol,Nothing} = nothing
+    try
+        for word in words
+            keyvalue = split(word, ':')
+            if length(keyvalue) < 2
+                continue
+            end
+            key, value = strip.(keyvalue[1:2], ' ')
+            if key == "name"
+                name = value
+            elseif key == "paramtype"
+                paramtype = _readcsvtype_enum(lowercase(value))
+            elseif key == "grouptype"
+                if value != "nothing"
+                    grouptype = Symbol(value)
+                end
+            end
+        end
+        if isnothing(paramtype)
+            error("paramtype canot be found for csv ", filepath, ".")
+        end
+    catch e
+        # Try parsing using legacy parser before throwing error.
+        try
+            return _readcsvtype_legacy(filepath)
+        catch
+            throw(e)
+        end
+    end
+    return Tuple{String,CSVType,Union{Symbol,Nothing}}([name, paramtype, grouptype])
+end
+
+const _readcsvtype_keywords  = ["like", "single", "unlike", "pair", "assoc", "group", "groups"]
+function _readcsvtype_legacy(filepath)
+    # Old readcsvtype.
     # Searches for type from second line of CSV.
-    keywords = readcsvtype_keywords
+    keywords = _readcsvtype_keywords
     words = split(lowercase(rstrip(getline(String(filepath), 2), ',')), ' ')
     foundkeywords = intersect(words, keywords)
     isempty(foundkeywords) && error("Unable to determine type of database", filepath, ". Check that keyword is present on Line 2.")
     length(foundkeywords) > 1 && error("Multiple keywords found in database ", filepath, ": ", foundkeywords)
-    _readcsvtype(only(foundkeywords)) 
+    enum = _readcsvtype_enum(only(foundkeywords))
+    Base.depwarn("Old metadata format detected for ${filepath}. Metadata format for second row of CSV file has changed. Please consult documentation for details, or browse built-in database files to view the new format.", :getparams; force=true)
+    Tuple{String,CSVType,Union{Symbol,Nothing}}([words[1], enum, nothing])
 end
 
-function _readcsvtype(key)
+function _readcsvtype_enum(key)
     key == "single" && return singledata
     key == "like" && return singledata
     key == "pair" && return pairdata
@@ -657,7 +705,7 @@ function check_clashingheaders(
     headerparams = String[]
     headerparams_assoc = String[]
     for filepath in filepaths
-        csvtype = readcsvtype(filepath)
+        _, csvtype, _ = _readcsvtype(filepath)
         if csvtype == singledata || csvtype == pairdata
             append!(headerparams, readheaderparams(filepath; param_options))
         elseif csvtype == assocdata
@@ -680,7 +728,7 @@ function findsitesincsvs(
     normalised_components = normalisestring.(components, normalisecomponents)
     sites = Dict(components .=> [Set{String}() for _ ∈ 1:length(components)])
     for filepath ∈ filepaths
-        csvtype = readcsvtype(filepath)
+        name, csvtype, grouptype = _readcsvtype(filepath)
         csvtype != assocdata && continue
         df = CSV.File(filepath; header=3,silencewarnings = !verbose) 
         csvheaders = String.(Tables.columnnames(df))
@@ -713,7 +761,7 @@ function findgroupsincsv(
         param_options::ParamOptions = DefaultParamOptions
     )
     normalisecomponents = param_options.normalisecomponents
-    csvtype = readcsvtype(filepath)
+    name, csvtype, grouptype = _readcsvtype(filepath)
     csvtype != groupdata && return Dict{String,String}()    
     normalised_components = normalisestring.(components, normalisecomponents)
     df = CSV.File(filepath; header=3, silencewarnings = !verbose)
@@ -870,7 +918,7 @@ function GroupParam(
     allfoundcomponentgroups = Dict{String,String}()
     groupsourcecsvs = String[]
     for filepath in filepaths
-        csvtype = readcsvtype(filepath)
+        name, csvtype, grouptype = _readcsvtype(filepath)
         if csvtype != groupdata
             verbose && @info("Skipping $csvtype csv at $filepath")
             continue

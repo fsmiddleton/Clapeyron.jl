@@ -1,5 +1,5 @@
 Clapeyron Database File,,,,,,,,
-PCSAFT Assoc Parameters,,,,,,,,
+name:CKSAFT,paramtype:assoc,grouptype:nothing
 species1,SMILES1,site1,species2,SMILES2,site2,epsilon_assoc,bond_vol,source
 ammonia,N,H,ammonia,N,e,893.1,0.0327,
 water,O,H,water,O,e,1809,0.01593,

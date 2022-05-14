@@ -1,4 +1,5 @@
 Clapeyron Database File,
+name:VTPRUNIFAC,paramtype:group,grouptype:VTPRUNIFAC
 SAFTgammaMie Groups,
 species,groups
 ethane,"[""CH3"" => 2]"
