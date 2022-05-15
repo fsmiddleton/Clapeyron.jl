@@ -184,13 +184,14 @@ function buildsites(
     return SiteParam(n_sites_dict, allcomponentsites)
 end
 
-function packageparams(allparams::Dict, 
-    components::Vector{String}, 
-    allcomponentsites::Vector{Vector{String}},
-    paramsourcecsvs::Dict{String,Set{String}}, 
-    paramsources::Dict{String,Set{String}},
-    param_options::ParamOptions = DefaultParamOptions)
-
+function packageparams(
+        allparams::Dict, 
+        components::Vector{String}, 
+        allcomponentsites::Vector{Vector{String}},
+        paramsourcecsvs::Dict{String,Set{String}}, 
+        paramsources::Dict{String,Set{String}},
+        param_options::ParamOptions = DefaultParamOptions,
+    )
     asymmetricparams = param_options.asymmetricparams
     ignore_missingsingleparams = param_options.ignore_missing_singleparams
     # Package params into their respective Structs.
@@ -201,30 +202,33 @@ function packageparams(allparams::Dict,
     return output
 end
 
-#SingleParam
-function pkgparam(param::String,
-    value::Vector{<:NumberOrString},
-    components::Vector{String}, 
-    allcomponentsites::Vector{Vector{String}},
-    paramsourcecsvs::Dict{String,Set{String}}, 
-    paramsources::Dict{String,Set{String}};
-    param_options::ParamOptions = DefaultParamOptions)
+# SingleParam
+function pkgparam(
+        param::String,
+        value::Vector{<:NumberOrString},
+        components::Vector{String}, 
+        allcomponentsites::Vector{Vector{String}},
+        paramsourcecsvs::Dict{String,Set{String}}, 
+        paramsources::Dict{String,Set{String}};
+        param_options::ParamOptions = DefaultParamOptions,
+    )
     newvalue, ismissingvalues = defaultmissing(value)
     if param ∉ param_options.ignore_missing_singleparams && any(ismissingvalues)
         error("Missing values exist in single parameter ", param, ": ", value, ".")
     end
-    return SingleParam(param, components, newvalue, ismissingvalues, collect(paramsourcecsvs[param]), collect(paramsources[param]))
+    return SingleParam(param, components, String[], nothing, newvalue, ismissingvalues, collect(paramsourcecsvs[param]), collect(paramsources[param]))
 end
 
-#PairParam
-function pkgparam(param::String,
-    value::Matrix{<:NumberOrString},
-    components::Vector{String}, 
-    allcomponentsites::Vector{Vector{String}},
-    paramsourcecsvs::Dict{String,Set{String}}, 
-    paramsources::Dict{String,Set{String}};
-    param_options::ParamOptions = DefaultParamOptions)
-    
+# PairParam
+function pkgparam(
+        param::String,
+        value::Matrix{<:NumberOrString},
+        components::Vector{String}, 
+        allcomponentsites::Vector{Vector{String}},
+        paramsourcecsvs::Dict{String,Set{String}}, 
+        paramsources::Dict{String,Set{String}};
+        param_options::ParamOptions = DefaultParamOptions,
+    )
     param ∉ param_options.asymmetricparams && mirrormatrix!(value)
     newvalue, ismissingvalues = defaultmissing(value)
     diagidx = diagind(newvalue)
@@ -237,22 +241,23 @@ function pkgparam(param::String,
             error("Partial missing values exist in diagonal of pair parameter ", param, ": ", [value[x,x] for x ∈ 1:size(ismissingvalues,1)], ".")
        end
     end
-    return PairParam(param,components, newvalue, diagvalues,ismissingvalues, collect(paramsourcecsvs[param]), collect(paramsources[param]))
+    return PairParameter(param, components, String[], nothing, newvalue, diagvalues, ismissingvalues, collect(paramsourcecsvs[param]), collect(paramsources[param]))
 end
 
-#AssocParam
-function pkgparam(param::String,
-    value::Matrix{<:Matrix{<:NumberOrString}},
-    components::Vector{String}, 
-    allcomponentsites::Vector{Vector{String}},
-    paramsourcecsvs::Dict{String,Set{String}}, 
-    paramsources::Dict{String,Set{String}};
-    param_options::ParamOptions = DefaultParamOptions)
-    
+# AssocParam
+function pkgparam(
+        param::String,
+        value::Matrix{<:Matrix{<:NumberOrString}},
+        components::Vector{String}, 
+        allcomponentsites::Vector{Vector{String}},
+        paramsourcecsvs::Dict{String,Set{String}}, 
+        paramsources::Dict{String,Set{String}};
+        param_options::ParamOptions = DefaultParamOptions,
+    )
     param ∉ param_options.asymmetricparams && mirrormatrix!(value) 
     newvalue_ismissingvalues = defaultmissing.(value)
     newvalue = first.(newvalue_ismissingvalues)
-    return AssocParam(param, components, newvalue, allcomponentsites, collect(paramsourcecsvs[param]), collect(paramsources[param]))
+    return AssocParam(param, components, String[], nothing, newvalue, allcomponentsites, collect(paramsourcecsvs[param]), collect(paramsources[param]))
 end
 
 function param_type(t1,t2)
@@ -655,7 +660,7 @@ function _readcsvtype_legacy(filepath)
     isempty(foundkeywords) && error("Unable to determine type of database", filepath, ". Check that keyword is present on Line 2.")
     length(foundkeywords) > 1 && error("Multiple keywords found in database ", filepath, ": ", foundkeywords)
     enum = _readcsvtype_enum(only(foundkeywords))
-    Base.depwarn("Old metadata format detected for ${filepath}. Metadata format for second row of CSV file has changed. Please consult documentation for details, or browse built-in database files to view the new format.", :getparams; force=true)
+    Base.depwarn("Old metadata format detected for " *  filepath * ". Metadata format for second row of CSV file has changed. Please consult documentation for details, or browse built-in database files to view the new format.", :getparams; force=true)
     Tuple{String,CSVType,Union{Symbol,Nothing}}([words[1], enum, nothing])
 end
 

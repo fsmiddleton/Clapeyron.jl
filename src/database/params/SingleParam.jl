@@ -1,12 +1,3 @@
-struct SingleParameter{T,V<:AbstractVector{T}} <: ClapeyronParam
-    name::String
-    components::Array{String,1}
-    values::V
-    ismissingvalues::Array{Bool,1}
-    sourcecsvs::Array{String,1}
-    sources::Array{String,1}
-end
-
 """
     SingleParam{T}
 
@@ -34,7 +25,7 @@ SingleParam{Float64}("new name") with 2 components:
  "water" => 18.01
  "ammonia" => 17.03
 
-julia> has_oxigen = [true,false]; has_o = SingleParam(mw2,has_oxigen)
+julia> has_oxygen = [true,false]; has_o = SingleParam(mw2, has_oxygen)
 SingleParam{Bool}("new name") with 2 components:
  "water" => true
  "ammonia" => false
@@ -44,23 +35,200 @@ SingleParam{Bool}("new name") with 2 components:
 ## Example usage in models:
 
 ```
-function molecular_weight(model,molar_frac)
+function molecular_weight(model, molar_frac)
     mw = model.params.mw.values
     res = zero(eltype(molarfrac))
-    for i in @comps #iterating through all components
-        res += molar_frac[i]*mw[i]
+    for i in @comps  # iterating through all components
+        res += molar_frac[i] * mw[i]
     end
     return res
 end
 ```
 """
+struct SingleParameter{T,V<:AbstractVector{T}} <: ClapeyronParam
+    name::String
+    components::Vector{String}
+    groups::Vector{String}
+    grouptype::Union{Symbol,Nothing}
+    values::V
+    ismissingvalues::Vector{Bool}
+    sourcecsvs::Vector{String}
+    sources::Vector{String}
+end
+
 const SingleParam{T} = SingleParameter{T,Vector{T}} where T
 
-SingleParam(name,components,values,missingvals,src,sourcecsv) = SingleParameter(name,components,values,missingvals,src,sourcecsv)
-function Base.convert(::Type{SingleParam{String}},param::SingleParam{<:AbstractString})::SingleParam{String}
-    values = String.(param.values)
-    return (param.name,param.components,values,param.missingvals,param.src,param.sourcecsv)
+SingleParam(name, components, groups, grouptype, values, missingvals, src, sourcecsv) = SingleParameter(name, components, groups, grouptype, values, missingvals, src, sourcecsv)
+
+# Group-less constructor for legacy purposes
+function SingleParam(
+        name::String,
+        components::Vector{String},
+        values::Vector{T},
+        ismissingvalues::Vector{Bool},
+        sourcecsvs,
+        sources,
+    ) where T
+    Base.depwarn("Params should be constructed with group info.", :SingleParameter; force=true)
+    return SingleParam{T}(
+        name,
+        components,
+        String[],
+        nothing,
+        values,
+        ismissingvalues,
+        sourcecsvs,
+        sources,
+    )
 end
+
+# Constructor to fill in ismissingvalues
+function SingleParam(
+        name::String,
+        components::Vector{String},
+        groups::Vector{String},
+        grouptype::Union{Symbol,Nothing},
+        values::Vector{T},
+        sourcecsvs = String[],
+        sources = String[],
+    ) where T
+    if any(ismissing, values)
+        _values, _ismissingvalues = defaultmissing(values)
+        TT = eltype(_values)
+    else
+        _values = values
+        _ismissingvalues = fill(false, length(values))
+        TT = T
+    end
+    return SingleParam{TT}(
+        name,
+        components,
+        groups,
+        grouptype,
+        _values,
+        _ismissingvalues,
+        sourcecsvs,
+        sources,
+    )
+end
+
+# Legacy format without groups
+function SingleParam(
+        name::String,
+        components::Vector{String},
+        values::Vector{T},
+        sourcecsvs = String[],
+        sources = String[],
+    ) where T
+    Base.depwarn("Params should be constructed with group info.", :SingleParameter; force=true)
+    if any(ismissing, values)
+        _values,_ismissingvalues = defaultmissing(values)
+        TT = eltype(_values)
+    else
+        _values = values
+        _ismissingvalues = fill(false, length(values))
+        TT = T
+    end
+    return SingleParam{TT}(
+        name,
+        components,
+        String[],
+        nothing,
+        _values,
+        _ismissingvalues,
+        sourcecsvs,
+        sources,
+    )
+end
+
+# Name changing for constructing params from inputparams
+function SingleParam(
+        x::SingleParam,
+        name::String = x.name;
+        isdeepcopy::Bool = true,
+        sources::Vector{String} = x.sources,
+    )
+    if isdeepcopy
+        return SingleParam(
+            name,
+            x.components,
+            x.groups,
+            x.grouptype,
+            deepcopy(x.values),
+            deepcopy(x.ismissingvalues),
+            x.sourcecsvs,
+            sources,
+        )
+    end
+    return SingleParam(
+        name,
+        x.components,
+        x.groups,
+        x.grouptype,
+        x.values,
+        x.ismissingvalues,
+        x.sourcecsvs,
+        sources,
+    )
+end
+
+SingleParameter(x::SingleParam, name::String = x.name; isdeepcopy::Bool = true, sources::Vector{String} = x.sources) = SingleParam(x, name; isdeepcopy, sources)
+
+# If no value is provided, just initialise empty param
+function SingleParam{T}(
+        name::String,
+        components::Vector{String};
+        groups::Vector{String} = String[],
+        grouptype::Union{Symbol,Nothing} = nothing,
+        sources = String[],
+    ) where T <: AbstractString
+    values = fill("", length(components))
+    return SingleParam(
+        name,
+        components,
+        groups,
+        grouptype,
+        values,
+        String[],
+        sources,
+    )
+end
+
+function SingleParam{T}(
+        name::String,
+        components::Vector{String};
+        groups::Vector{String} = String[],
+        grouptype::Union{Symbol,Nothing} = nothing,
+        sources = String[],
+    ) where T <: Number
+    values = zeros(T, length(components))
+    return SingleParam(
+        name,
+        components,
+        groups,
+        grouptype,
+        values,
+        String[],
+        sources,
+    )
+end
+
+# # Create copy with values replaced
+function SingleParam(x::SingleParameter, v::Vector)
+    _values, _ismissingvalues = defaultmissing(v)
+    return SingleParam(
+        x.name,
+        x.components,
+        x.groups,
+        x.grouptype,
+        _values,
+        _ismissingvalues,
+        x.sourcecsvs,
+        x.sources,
+    )
+end
+
+# Show
 function Base.show(io::IO, param::SingleParameter)
     print(io, typeof(param), "(\"", param.name, "\")[")
     for component in param.components
@@ -92,110 +260,92 @@ function Base.show(io::IO, ::MIME"text/plain", param::SingleParameter)
     end
 end
 
-function SingleParam(x::SingleParam, name::String = x.name; isdeepcopy::Bool = true, sources::Vector{String} = x.sources)
-    if isdeepcopy
-        return SingleParam(
-            name,
-            x.components,
-            deepcopy(x.values),
-            deepcopy(x.ismissingvalues),
-            x.sourcecsvs,
-            sources
-        )
-    end
+# Convert utilities
+function Base.convert(::Type{SingleParam{Float64}}, param::SingleParam{Int})
+    values = Float64.(param.values)
     return SingleParam(
-        name,
-        x.components,
-        x.values,
-        x.ismissingvalues,
-        x.sourcecsvs,
-        sources
+        param.name,
+        param.components,
+        param.groups,
+        param.grouptype,
+        values,
+        param.ismissingvalues,
+        param.sourcecsvs,
+        param.sources,
     )
 end
 
-SingleParameter(x::SingleParam, name::String = x.name; isdeepcopy::Bool = true, sources::Vector{String} = x.sources) = SingleParam(x, name; isdeepcopy, sources)
-
-#a barebones constructor, in case we dont build from csv
-function SingleParam(
-        name::String,
-        components::Vector{String},
-        values::Vector{T},
-        sourcecsvs = String[],
-        sources = String[]
-    ) where T
-    if any(ismissing, values)
-        _values,_ismissingvalues = defaultmissing(values)
-        TT = eltype(_values)
-    else
-        _values = values
-        _ismissingvalues = fill(false, length(values))
-        TT = T
-    end
-    return  SingleParam{TT}(name, components, _values, _ismissingvalues, sourcecsvs, sources)
-end
-
-# If no value is provided, just initialise empty param.
-function SingleParam{T}(
-        name::String,
-        components::Vector{String};
-        sources = String[]
-    ) where T <: AbstractString
-    values = fill("", length(components))
-    return SingleParam(name, components, values, String[], sources)
-end
-
-function SingleParam{T}(
-        name::String,
-        components::Vector{String};
-        sources = String[]
-    ) where T <: Number
-    values = zeros(T, length(components))
-    return SingleParam(name, components, values, String[], sources)
-end
-
-
-function SingleParam(x::SingleParameter, v::Vector)
-    _values,_ismissingvalues = defaultmissing(v)
-    return SingleParam(x.name, x.components,_values, _ismissingvalues , x.sourcecsvs, x.sources)
-end
-
-#convert utilities
-function Base.convert(::Type{SingleParam{Float64}},param::SingleParam{Int})
-    values = Float64.(param.values)
-    return SingleParam(param.name,param.components,values,param.ismissingvalues,param.sourcecsvs,param.sources)
-end
-
-function Base.convert(::Type{SingleParam{Bool}},param::SingleParam{Int})
-    @assert all(z->(isone(z) | iszero(z)),param.values)
+function Base.convert(::Type{SingleParam{Bool}}, param::SingleParam{Int})
+    @assert all(z -> (isone(z) | iszero(z)), param.values)
     values = Array(Bool.(param.values))
-    return SingleParam(param.name,param.components,values,param.ismissingvalues,param.sourcecsvs,param.sources)
+    return SingleParam(
+        param.name,
+        param.components,
+        param.groups,
+        param.grouptype,
+        values,
+        param.ismissingvalues,
+        param.sourcecsvs,
+        param.sources,
+    )
 end
 
-function Base.convert(::Type{SingleParam{Int}},param::SingleParam{Float64})
-    @assert all(z->isinteger(z),param.values)
+function Base.convert(::Type{SingleParam{Int}}, param::SingleParam{Float64})
+    @assert all(z -> isinteger(z), param.values)
     values = Int.(param.values)
-    return SingleParam(param.name,param.components,values,param.ismissingvalues,param.sourcecsvs,param.sources)
+    return SingleParam(
+        param.name,
+        param.components,
+        param.groups,
+        param.grouptype,
+        values,
+        param.ismissingvalues,
+        param.sourcecsvs,
+        param.sources,
+    )
 end
 
-#broadcasting utilities
+function Base.convert(
+        ::Type{SingleParam{String}},
+        param::SingleParam{<:AbstractString}
+    )::SingleParam{String}
+    values = String.(param.values)
+    return SingleParam(
+        param.name,
+        param.components,
+        param.groups,
+        param.grouptype,
+        values,
+        param.missingvals,
+        param.src,
+        param.sourcecsv
+    )
+end
+
+# Broadcasting utilities
 Base.broadcastable(param::SingleParameter) = param.values
 
-#pack vectors
-
+# Pack vectors
 const PackedVectorSingleParam{T} = Clapeyron.SingleParameter{SubArray{T, 1, Vector{T}, Tuple{UnitRange{Int64}}, true}, PackedVectorsOfVectors.PackedVectorOfVectors{Vector{Int64}, Vector{T}, SubArray{T, 1, Vector{T}, Tuple{UnitRange{Int64}}, true}}}
 
 function pack_vectors(param::SingleParameter{<:AbstractVector})
-    name,components,vals,missingvals,srccsv,src = param.name,param.components,param.values,param.ismissingvalues,param.sourcecsvs,param.sources
-    vals = pack_vectors(vals)
-    return SingleParam(name,components,vals,missingvals,srccsv,src)
+    values = pack_vectors(vals)
+    return SingleParam(
+        param.name,
+        param.components,
+        param.groups,
+        param.grouptype,
+        values,
+        param.ismissingvalues,
+        param.sourcecsvs,
+        param.sources,
+    )
 end
 
 function pack_vectors(params::Vararg{SingleParameter{T},N}) where {T<:Number,N}
     param = first(params)
-    name,components,_,missingvals,srccsv,src = param.name,param.components,param.values,param.ismissingvalues,param.sourcecsvs,param.sources
     len = length(params)
     vals = [zeros(len) for _ in params]
-
     for i in 1:length(vals)
         vali = vals[i]
         for (k,par) in pairs(params)
@@ -203,21 +353,57 @@ function pack_vectors(params::Vararg{SingleParameter{T},N}) where {T<:Number,N}
         end
     end
     vals = PackedVectorsOfVectors.pack(vals)
-    SingleParam(name,components,vals,missingvals,srccsv,src)
+    return SingleParam(
+        param.name,
+        param.components,
+        param.groups,
+        param.grouptype,
+        values,
+        param.ismissingvalues,
+        param.sourcecsvs,
+        param.sources,
+    )
 end
 
 # Operations
 function Base.:(+)(param::SingleParameter, x::Number)
     values = param.values .+ x
-    return SingleParam(param.name, param.components, values, param.ismissingvalues, param.sourcecsvs, param.sources)
+    return SingleParam(
+        param.name,
+        param.components,
+        param.groups,
+        param.grouptype,
+        values,
+        param.ismissingvalues,
+        param.sourcecsvs,
+        param.sources,
+    )
 end
 
 function Base.:(*)(param::SingleParameter, x::Number)
     values = param.values .* x
-    return SingleParam(param.name, param.components, values, param.ismissingvalues, param.sourcecsvs, param.sources)
+    return SingleParam(
+        param.name,
+        param.components,
+        param.groups,
+        param.grouptype,
+        values,
+        param.ismissingvalues,
+        param.sourcecsvs,
+        param.sources,
+    )
 end
 
 function Base.:(^)(param::SingleParameter, x::Number)
     values = param.values .^ x
-    return SingleParam(param.name, param.components, values, param.ismissingvalues, param.sourcecsvs, param.sources)
+    return SingleParam(
+        param.name,
+        param.components,
+        param.groups,
+        param.grouptype,
+        values,
+        param.ismissingvalues,
+        param.sourcecsvs,
+        param.sources,
+    )
 end

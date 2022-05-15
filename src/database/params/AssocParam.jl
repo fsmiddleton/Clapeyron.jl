@@ -1,4 +1,3 @@
-
 """
     AssocParam{T}
 
@@ -6,13 +5,39 @@ Struct holding association parameters.
 """
 struct AssocParam{T} <: ClapeyronParam
     name::String
-    components::Array{String,1}
+    components::Vector{String}
+    groups::Vector{String}
+    grouptype::Union{Symbol,Nothing}
     values::Compressed4DMatrix{T,Vector{T}}
-    sites::Array{Array{String,1},1}
-    sourcecsvs::Array{String,1}
-    sources::Array{String,1}
+    sites::Vector{Vector{String}}
+    sourcecsvs::Vector{String}
+    sources::Vector{String}
 end
 
+function AssocParam(
+        name::String,
+        components::Vector{String},
+        groups::Vector{String},
+        grouptype::Union{Symbol,Nothing},
+        values::MatrixofMatrices,
+        allcomponentsites,
+        sourcecsvs,
+        sources,
+    ) where T
+    _values = Compressed4DMatrix(values)
+    return AssocParam(
+        name,
+        components,
+        groups,
+        grouptype,
+        _values,
+        allcomponentsites,
+        sourcecsvs,
+        sources,
+    )
+end
+
+# Legacy format without groups
 function AssocParam(
         name::String,
         components::Vector{String},
@@ -21,15 +46,32 @@ function AssocParam(
         sourcecsvs,
         sources
     ) where T
+    Base.depwarn("Params should be constructed with group info.", :AssocParam; force=true)
     _values = Compressed4DMatrix(values)
-    return AssocParam(name, components, _values, allcomponentsites, sourcecsvs,sources)
+    return AssocParam(
+        name,
+        components,
+        String[],
+        nothing,
+        _values,
+        allcomponentsites,
+        sourcecsvs,
+        sources,
+    )
 end
 
-function AssocParam(x::AssocParam, name::String = x.name; isdeepcopy = true, sources = x.sources)
+# Name changing for constructing params from inputparams
+function AssocParam(
+        x::AssocParam,
+        name::String = x.name;
+        isdeepcopy = true,
+        sources = x.sources)
     if isdeepcopy
         return AssocParam(
             name,
             x.components,
+            x.groups,
+            x.grouptype,
             deepcopy(x.values),
             x.sites,
             x.sourcecsvs,
@@ -39,6 +81,8 @@ function AssocParam(x::AssocParam, name::String = x.name; isdeepcopy = true, sou
     return AssocParam(
         name,
         x.components,
+        x.groups,
+        x.grouptype,
         x.values,
         x.sites,
         x.sourcecsvs,
@@ -88,6 +132,7 @@ end
 #     return AssocParam{T}(name, components, values, String[], sources)
 # end
 
+# Show
 function Base.show(io::IO, mime::MIME"text/plain", param::AssocParam{T}) where T
     print(io, "AssocParam{", string(T), "}")
     print(io, param.components)
@@ -118,15 +163,42 @@ end
 # Operations
 function Base.:(+)(param::AssocParam, x::Number)
     values = param.values + x
-    return AssocParam(param.name, param.components, values, param.sites ,param.sourcecsvs, param.sources)
+    return AssocParam(
+        param.name,
+        param.components,
+        param.groups,
+        param.grouptype,
+        values,
+        param.sites,
+        param.sourcecsvs,
+        param.sources,
+    )
 end
 
 function Base.:(*)(param::AssocParam, x::Number)
     values = param.values * x
-    return AssocParam(param.name, param.components, values, param.sites, param.sourcecsvs, param.sources)
+    return AssocParam(
+        param.name,
+        param.components,
+        param.groups,
+        param.grouptype,
+        values,
+        param.sites,
+        param.sourcecsvs,
+        param.sources,
+    )
 end
 
 function Base.:(^)(param::AssocParam, x::Number)
     values = param.values ^ x
-    return AssocParam(param.name, param.components, values, param.sites, param.sourcecsvs, param.sources)
+    return AssocParam(
+        param.name,
+        param.components,
+        param.groups,
+        param.grouptype,
+        values,
+        param.sites,
+        param.sourcecsvs,
+        param.sources,
+    )
 end
