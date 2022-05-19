@@ -38,20 +38,40 @@ function AssocParam(
 end
 
 # Legacy format without groups
-function AssocParam(
+function AssocParam{T}(
+        name::String,
+        components::Vector{String},
+        values::Compressed4DMatrix,
+        allcomponentsites,
+        sourcecsvs,
+        sources,
+    ) where T
+    return AssocParam(
+        name,
+        components,
+        components,
+        nothing,
+        values,
+        allcomponentsites,
+        sourcecsvs,
+        sources,
+    )
+end
+
+function AssocParam{T}(
         name::String,
         components::Vector{String},
         values::MatrixofMatrices,
         allcomponentsites,
         sourcecsvs,
-        sources
+        sources,
     ) where T
     Base.depwarn("Params should be constructed with group info.", :AssocParam; force=true)
     _values = Compressed4DMatrix(values)
     return AssocParam(
         name,
         components,
-        String[],
+        components,
         nothing,
         _values,
         allcomponentsites,
@@ -65,7 +85,8 @@ function AssocParam(
         x::AssocParam,
         name::String = x.name;
         isdeepcopy = true,
-        sources = x.sources)
+        sources = x.sources,
+    )
     if isdeepcopy
         return AssocParam(
             name,

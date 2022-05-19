@@ -17,10 +17,10 @@ Let's explore the sites in a 3-component `SAFTGammaMie` model:
 ```julia
 
 julia> model3 = SAFTgammaMie([    
-                "ethanol",
-                ("nonadecanol", ["CH3"=>1, "CH2"=>18, "OH"=>1]),     
-                ("ibuprofen", ["CH3"=>3, "COOH"=>1, "aCCH"=>1, "aCCH2"=>1, "aCH"=>4])
-                               ])
+            "ethanol",
+            ("nonadecanol", ["CH3"=>1, "CH2"=>18, "OH"=>1]),     
+            ("ibuprofen", ["CH3"=>3, "COOH"=>1, "aCCH"=>1, "aCCH2"=>1, "aCH"=>4]),
+           ])
 
 SAFTgammaMie{BasicIdeal} with 3 components:
  "ethanol"
@@ -69,24 +69,23 @@ julia> model3.sites.n_sites
 ```
 """
 struct SiteParam <: ClapeyronParam
-    components::Array{String,1}
-    sites::Array{Array{String,1},1}
-    n_sites::PackedVectorsOfVectors.PackedVectorOfVectors{Vector{Int}, Vector{Int}, SubArray{Int, 1, Vector{Int}, Tuple{UnitRange{Int64}}, true}}
-    i_sites::Array{Array{Int,1},1}
-    flattenedsites::Array{String,1}
-    n_flattenedsites::Array{Array{Int,1},1}
-    i_flattenedsites::Array{Array{Int,1},1}
-    sourcecsvs::Array{String,1}
+    components::Vector{String}
+    groups::Vector{String}
+    grouptype::Union{Symbol,Nothing}
+    sites::Vector{Vector{String}}
+    n_sites::PackedVectorsOfVectors.PackedVectorOfVectors{Vector{Int}, Vector{Int}, SubArray{Int,1,Vector{Int}, Tuple{UnitRange{Int64}}, true}}
+    i_sites::Vector{Vector{Int}}
+    flattenedsites::Vector{String}
+    n_flattenedsites::Vector{Vector{Int}}
+    i_flattenedsites::Vector{Vector{Int}}
+    sourcecsvs::Vector{String}
 end
 
-
 function Base.show(io::IO, mime::MIME"text/plain", param::SiteParam)
-    print(io,"SiteParam ")
+    print(io, "SiteParam ")
     len = length(param.components)
-    println(io,"with ", len, " component", ifelse(len==1, ":", "s:"))
-    
+    println(io, "with ", len, " component", ifelse(len==1, ":", "s:"))
     for i in 1:length(param.components)
-        
         print(io, " \"", param.components[i], "\": ")
         firstloop = true
         if length(param.n_sites[i]) == 0
@@ -104,98 +103,114 @@ end
 function Base.show(io::IO, param::SiteParam)
     print(io,"SiteParam[")
     len = length(param.components)
-    
     for i in 1:length(param.components)
-        
         print(io, "\"", param.components[i], "\" => [")
         firstloop = true
-    
         for j in 1:length(param.n_sites[i])
             firstloop == false && print(io, ", ")
             print(io, "\"", param.sites[i][j], "\" => ", param.n_sites[i][j])
             firstloop = false
         end
-        print(io,']')
+        print(io, ']')
         i != length(param.components) && print(io,", ")
     end
     print(io,"]")
 end
 
 
-function SiteParam(pairs::Dict{String,SingleParam{Int}},allcomponentsites)
+function SiteParam(
+        pairs::Dict{String, SingleParam{Int}},
+        allcomponentsites,
+    )
     arbitraryparam = first(values(pairs))
     components = arbitraryparam.components
+    groups = arbitraryparam.groups
+    grouptype = arbitraryparam.grouptype
     sites = allcomponentsites
-    ncomps = length(components)
+    tofind = isempty(groups) ? components : groups
+    # Ideally, this should be the correct way to find tofind, but it breaks existing
+    # code that do not specify the grouptype.
+    # tofind = isnothing(grouptype_) ? components : groups
+    ncomps = length(tofind)
     sourcecsvs = String[]
     for x in values(pairs)
-        vcat(sourcecsvs,x.sourcecsvs)  
+        append!(sourcecsvs, x.sourcecsvs)  
     end
-    if length(sourcecsvs) >0
+    if length(sourcecsvs) > 0
         unique!(sourcecsvs)
     end
     n_sites = [[pairs[sites[i][j]].values[i] for j ∈ 1:length(sites[i])] for i ∈ 1:ncomps]  # or groupsites
     length_sites = [length(componentsites) for componentsites ∈ sites]
     i_sites = [1:length_sites[i] for i ∈ 1:ncomps]
-    flattenedsites = unique!(reduce(vcat,sites,init = String[]))
+    flattenedsites = unique!(reduce(vcat, sites, init=String[]))
     len_flattenedsites = length(flattenedsites)
-    #i_flattenedsites = 1:len_flattenedsites
-    n_flattenedsites = [zeros(Int,len_flattenedsites) for _ ∈ 1:ncomps]
-    i_flattenedsites = [zeros(Int,len_flattenedsites) for _ ∈ 1:ncomps]
+    n_flattenedsites = [zeros(Int, len_flattenedsites) for _ ∈ 1:ncomps]
+    i_flattenedsites = [zeros(Int, len_flattenedsites) for _ ∈ 1:ncomps]
     for i in 1:ncomps
-        setindex!.(n_flattenedsites,n_sites,i_sites)
+        setindex!.(n_flattenedsites, n_sites, i_sites)
         flatsites_i = i_flattenedsites[i]
-        for (aidx,a) in Base.pairs(i_sites[i])
+        for (aidx, a) in Base.pairs(i_sites[i])
             flatsites_i[a] = aidx
         end
     end
-    return SiteParam(components, 
-    sites, 
-    PackedVectorsOfVectors.pack(n_sites),
-    i_sites, 
-    flattenedsites,
-    n_flattenedsites, 
-    i_flattenedsites,
-    sourcecsvs)
+    return SiteParam(
+        components,
+        groups,
+        grouptype,
+        sites, 
+        PackedVectorsOfVectors.pack(n_sites),
+        i_sites, 
+        flattenedsites,
+        n_flattenedsites, 
+        i_flattenedsites,
+        sourcecsvs,
+    )
 end
 
-function SiteParam(input::PARSED_GROUP_VECTOR_TYPE,sourcecsvs::Vector{String}=String[])
+function SiteParam(
+        input::PARSED_GROUP_VECTOR_TYPE,
+        sourcecsvs::Vector{String} = String[],
+    )
     components = [first(i) for i ∈ input]
-    raw_sites =  [last(i) for i ∈ input]
+    raw_sites = [last(i) for i ∈ input]
     sites = [first.(sitepairs) for sitepairs ∈ raw_sites]
     n_sites = [last.(sitepairs) for sitepairs ∈ raw_sites]
-    flattenedsites = unique!(reduce(vcat,sites,init = String[]))
+    flattenedsites = unique!(reduce(vcat, sites, init = String[]))
     i_sites = [[findfirst(isequal(site), flattenedsites) for site ∈ componentsites] for componentsites ∈ sites]
     len_flattenedsites = length(flattenedsites)
-    i_flattenedsites = [zeros(Int,len_flattenedsites) for _ ∈ 1:length(input)]
-    n_flattenedsites = [zeros(Int,len_flattenedsites) for _ ∈ 1:length(input)]
+    i_flattenedsites = [zeros(Int, len_flattenedsites) for _ ∈ 1:length(input)]
+    n_flattenedsites = [zeros(Int, len_flattenedsites) for _ ∈ 1:length(input)]
     for i in 1:length(input)
-        setindex!.(n_flattenedsites,n_sites,i_sites)
+        setindex!.(n_flattenedsites, n_sites, i_sites)
         flatsites_i = i_flattenedsites[i]
         for (aidx,a) in Base.pairs(i_sites[i])
             flatsites_i[a] = aidx
         end
     end
-
-    return SiteParam(components, 
-    sites, 
-    PackedVectorsOfVectors.pack(n_sites),
-    i_sites, 
-    flattenedsites,
-    n_flattenedsites, 
-    i_flattenedsites,
-    sourcecsvs)
+    return SiteParam(
+        components, 
+        sites, 
+        PackedVectorsOfVectors.pack(n_sites),
+        i_sites, 
+        flattenedsites,
+        n_flattenedsites, 
+        i_flattenedsites,
+        sourcecsvs,
+    )
 end
 
 function SiteParam(components::Vector{String})
     n = length(components)
     return SiteParam(
-    components,
-    [String[] for _ ∈ 1:n],
-    PackedVectorsOfVectors.pack([Int[] for _ ∈ 1:n]),
-    [Int[] for _ ∈ 1:n],
-    String[],
-    [Int[] for _ ∈ 1:n],
-    [Int[] for _ ∈ 1:n],
-    String[])
+        components,
+        components,
+        nothing,
+        [String[] for _ ∈ 1:n],
+        PackedVectorsOfVectors.pack([Int[] for _ ∈ 1:n]),
+        [Int[] for _ ∈ 1:n],
+        String[],
+        [Int[] for _ ∈ 1:n],
+        [Int[] for _ ∈ 1:n],
+        String[],
+    )
 end

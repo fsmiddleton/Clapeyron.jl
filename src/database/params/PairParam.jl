@@ -74,7 +74,7 @@ function PairParam(
     return PairParam(
         name,
         components,
-        String[],
+        components,
         nothing,
         _values,
         diagvalues,
@@ -121,7 +121,7 @@ function PairParam(
     return PairParam(
         name,
         components,
-        String[],
+        components,
         nothing,
         values,
         diagvals,

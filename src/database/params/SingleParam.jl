@@ -73,7 +73,7 @@ function SingleParam(
     return SingleParam{T}(
         name,
         components,
-        String[],
+        components,
         nothing,
         values,
         ismissingvalues,
@@ -132,7 +132,7 @@ function SingleParam(
     return SingleParam{TT}(
         name,
         components,
-        String[],
+        components,
         nothing,
         _values,
         _ismissingvalues,
