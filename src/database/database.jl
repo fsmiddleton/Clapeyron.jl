@@ -275,11 +275,11 @@ function packageparams(
         paramsources::Vector{String};
         param_options::ParamOptions = DefaultParamOptions,
     )
-    param ∉ param_options.asymmetricparams && mirrormatrix!(value)
+    symmetric = param ∉ param_options.asymmetricparams
+    symmetric && mirrormatrix!(value)
     newvalue, ismissingvalues = defaultmissing(value)
-    diagidx = diagind(newvalue)
-    diagvalues = view(newvalue, diagidx)
     if param ∉ param_options.ignore_missing_singleparams 
+        diagidx = diagind(ismissingvalues)
         missing_diag = view(ismissingvalues,diagidx)
         type = first(missing_diag)
         if any(!=(type), missing_diag)  # If all are true or all are false 
@@ -292,7 +292,7 @@ function packageparams(
         groups,
         grouptype,
         newvalue,
-        diagvalues,
+        symmetric,
         ismissingvalues,
         paramsourcecsvs,
         paramsources,
@@ -551,7 +551,7 @@ end
 
 
 function findparamsincsv(
-        components::Array{String,1},
+        components::Vector{String},
         filepath::AbstractString;
         verbose::Bool = false,
         param_options::ParamOptions = DefaultParamOptions,

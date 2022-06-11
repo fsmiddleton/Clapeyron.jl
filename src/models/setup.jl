@@ -1,3 +1,5 @@
+const ∅_expr = quote end |> Base.remove_linenums!
+
 """
     ModelMapping(source, target, transformation)
 
@@ -211,7 +213,7 @@ struct ModelOptions
     has_groups::Bool
     param_options::Union{ParamOptions,Nothing}
     assoc_options::Union{AssocOptions,Nothing}
-    references::Vector{String}
+    references::Union{Vector{String},Nothing}
     inputparamstype::Symbol
     paramstype::Symbol
 end
@@ -270,7 +272,6 @@ function ModelOptions(
         isnothing(has_components) && (has_components = true)
         isnothing(has_sites) && (has_sites = false)
         isnothing(has_groups) && (has_groups = false)
-        isnothing(references) && (references = String[])
     end
     isnothing(paramstype) && (paramstype = Symbol(name, :Param))
     if isnothing(inputparamstype)
@@ -349,13 +350,9 @@ function _generatecode_model_struct(modeloptions::ModelOptions)::Expr
     end
 
     block = Expr(:block)
-    push!(block.args, :(components::Vector{String}))
-    if modeloptions.has_groups
-        push!(block.args, :(groups::GroupParam))
-    end
-    if modeloptions.has_sites
-        push!(block.args, :(sites::SiteParam))
-    end
+    modeloptions.has_components && push!(block.args, :(components::Vector{String}))
+    modeloptions.has_groups && push!(block.args, :(groups::GroupParam))
+    modeloptions.has_sites && push!(block.args, :(sites::SiteParam))
     if modeloptions.has_params
         push!(block.args, :(inputparams::$(modeloptions.inputparamstype)))
         push!(block.args, :(params::$(modeloptions.paramstype)))
@@ -371,9 +368,14 @@ function _generatecode_model_struct(modeloptions::ModelOptions)::Expr
     if modeloptions.has_sites
         push!(block.args, :(assoc_options::AssocOptions))
     end
-    push!(block.args, :(references::Vector{String}))
-
+    if modeloptions.references !== nothing
+        push!(block.args, :(references::Vector{String}))
+    end
     return Expr(:struct, false, Expr(:<:, defheader, typestatement), block)
+end
+
+function is_empty_model(model::ModelOptions)
+    return !(model.has_sites | model.has_groups | model.has_components | model.has_params | !isnothing(model.references))
 end
 
 """
@@ -445,14 +447,10 @@ function _generatecode_model_constructor(
     push!(parameters.args, Expr(:kw, :(_ismembermodel::Bool), :false))
     push!(func_head.args, parameters)
     # Now positional args
-    if modeloptions.has_components
-        # `components` is mandatory
-        push!(func_head.args, :(components::Union{String,Vector{String}}))
-    else
-        # `components` is optional
-        push!(func_head.args, Expr(:kw, :(components::Union{String,Vector{String}}), :(String[])))
-    end
-
+    
+    # `components` is mandatory
+    push!(func_head.args, :(components::Union{String,Vector{String}}))
+    
     # Creating function body
     block = Expr(:block)
     if modeloptions.has_groups
@@ -477,7 +475,7 @@ function _generatecode_model_constructor(
                 push!(block.args, :(rawparams = getparams(components, locations, param_options; userlocations, verbose)))
             end
         end
-        push!(block.args, :(merge!(_accumulatedparams, merge(rawparams, _accumulatedparams))))
+        push!(block.args, :(_accumulatedparams = merge!(rawparams, _accumulatedparams)))
         if modeloptions.has_groups
             push!(block.args, :((inputparams, params) = _initparams(groups.flattenedgroups, $(modeloptions.inputparamstype), $(modeloptions.paramstype), _accumulatedparams, mappings, _namespace)))
         else
@@ -598,7 +596,9 @@ function _generatecode_model_constructor(
     # Create object
     call = Expr(:call)
     push!(call.args, modeloptions.name)
-    push!(call.args, :(components))
+    if modeloptions.has_components
+        push!(call.args, :(components))
+    end
     if modeloptions.has_groups
         push!(call.args, :(groups))
     end
@@ -616,7 +616,9 @@ function _generatecode_model_constructor(
     if modeloptions.has_sites
         push!(call.args, :(assoc_options))
     end
-    push!(call.args, :(references))
+    if modeloptions.references !== nothing
+        push!(call.args, :(references))
+    end
     push!(block.args, Expr(:(=), :model, call))
     push!(block.args, :(updateparams!(model; updatemembers=false)))
     push!(block.args, Expr(:return, :model))
@@ -892,8 +894,8 @@ function updateparams!(
         updatemembers::Bool,
        )::Nothing
     if updatemembers
-        for member in modelmembers(self)
-            updateparams!(getfield(self, member); updatemembers=false)
+        for member in modelmembers(model)
+            updateparams!(getfield(model, member); updatemembers=false)
         end
     end
     for mapping ∈ filter(m -> !(m.transformation === identity),  mappings)
@@ -934,6 +936,100 @@ function updateparams!(
     end
 end
 
+function _inputparams_expr(modeloptions::ModelOptions,verbose = false)::Expr
+    if !isempty(modeloptions.inputparams)
+        if !isdefined(@__MODULE__, modeloptions.inputparamstype)
+            inputparams = _generatecode_param_struct(modeloptions.inputparamstype, modeloptions.inputparams)
+            verbose && @info(inputparams)
+            return inputparams
+        else
+            newfields = [param.name for param in modeloptions.inputparams]
+            newtypes = [param.type for param in modeloptions.inputparams]
+            oldfields = fieldnames(eval(modeloptions.inputparamstype))
+            oldtypes = fieldtypes(eval(modeloptions.inputparamstype))
+            if !issetequal(newfields, oldfields)
+                error("$(modeloptions.inputparamstype) is already defined with fields $oldfields, so it cannot be redefined with fields $newfields.")
+            end
+            if !issetequal(newtypes, oldtypes)
+                error("$(modeloptions.inputparamstype) has the same fields $oldfields as an existing definition, but it has types $oldtypes, insted of the $newtypes.")
+            end
+            return ∅_expr
+        end
+    end
+    return ∅_expr
+end
+
+function _params_expr(modeloptions::ModelOptions, verbose = false)::Expr
+    if !isempty(modeloptions.params)
+        if !isdefined(@__MODULE__, modeloptions.paramstype)
+            params =  _generatecode_param_struct(modeloptions.paramstype, modeloptions.params)
+            verbose && @info(params)
+            return params
+        else
+            newfields = [param.name for param in modeloptions.params]
+            newtypes = [param.type for param in modeloptions.params]
+            oldfields = fieldnames(eval(modeloptions.paramstype))
+            oldtypes = fieldtypes(eval(modeloptions.paramstype))
+            if !issetequal(newfields, oldfields)
+                error("$(modeloptions.paramstype) is already defined with fields $oldfields, so it cannot be redefined with fields $newfields.")
+            end
+            if !issetequal(newtypes, oldtypes)
+                error("$(modeloptions.paramstype) has the same fields $oldfields as an existing definition, but it has types $oldtypes, insted of the $newtypes.")
+            end
+            return ∅_expr
+        end
+    end
+    return ∅_expr
+end
+
+function _has_groups_expr(modeloptions::ModelOptions)::Expr
+    if modeloptions.has_groups
+        return quote
+            has_groups(::Type{<:$(modeloptions.name)}) = true
+            function Base.show(io::IO, mime::MIME"text/plain", model::$(modeloptions.name))
+                return gc_eosshow(io, mime, model)
+            end
+            molecular_weight(model::$(modeloptions.name), z = SA[1.0]) = group_molecular_weight(model.groups, mw(model), z)
+        end
+    else
+        return quote
+            function Base.show(io::IO, mime::MIME"text/plain", model::$(modeloptions.name))
+                return eosshow(io, mime, model)
+            end
+            molecular_weight(model::$(modeloptions.name), z = SA[1.0]) = comp_molecular_weight(mw(model), z)
+        end
+    end
+end
+
+function _has_sites_expr(modeloptions::ModelOptions)::Expr
+    if modeloptions.has_sites
+        return :(has_sites(::Type{<:$(modeloptions.name)}) = $(modeloptions.has_sites))
+    else
+        return ∅_expr
+    end
+end
+
+function _length_expr(modeloptions::ModelOptions)::Expr
+    if modeloptions.has_components
+        return :(Base.length(model::$(modeloptions.name)) = Base.length(model.components))
+    else
+        return :(Clapeyron.components(model::$(modeloptions.name)) = nothing)
+    end
+end
+
+function _short_show_expr(modeloptions::ModelOptions)::Expr
+    res = quote
+        function Base.show(io::IO, model::$(modeloptions.name))
+            return eosshow(io, model)
+        end
+    end
+    return res
+end
+
+function _modelmember_expr(modeloptions::ModelOptions)::Expr
+    tp = ((member.name for member in modeloptions.members)...,)
+    return :(modelmembers(model::$(modeloptions.name)) = $tp)
+end
 """
     createmodel(modeloptions; verbose)
 
@@ -957,78 +1053,146 @@ See the tutorial or browse the implementations to see how this is used.
 """
 function createmodel(modeloptions::ModelOptions; verbose::Bool = false)
     verbose && @info("Generating model code for " * String(modeloptions.name))
-    if !isempty(modeloptions.inputparams)
-        if !isdefined(@__MODULE__, modeloptions.inputparamstype)
-            inputparams = _generatecode_param_struct(modeloptions.inputparamstype, modeloptions.inputparams)
-            verbose && @info(inputparams)
-            eval(inputparams)
-        else
-            newfields = [param.name for param in modeloptions.inputparams]
-            newtypes = [param.type for param in modeloptions.inputparams]
-            oldfields = fieldnames(eval(modeloptions.inputparamstype))
-            oldtypes = fieldtypes(eval(modeloptions.inputparamstype))
-            if !issetequal(newfields, oldfields)
-                error("$(modeloptions.inputparamstype) is already defined with fields $oldfields, so it cannot be redefined with fields $newfields.")
-            end
-            if !issetequal(newtypes, oldtypes)
-                error("$(modeloptions.inputparamstype) has the same fields $oldfields as an existing definition, but it has types $oldtypes, insted of the $newtypes.")
-            end
-        end
-    end
-
-    if !isempty(modeloptions.params)
-        if !isdefined(@__MODULE__, modeloptions.paramstype)
-            params = _generatecode_param_struct(modeloptions.paramstype, modeloptions.params)
-            verbose && @info(params)
-            eval(params)
-        else
-            newfields = [param.name for param in modeloptions.params]
-            newtypes = [param.type for param in modeloptions.params]
-            oldfields = fieldnames(eval(modeloptions.paramstype))
-            oldtypes = fieldtypes(eval(modeloptions.paramstype))
-            if !issetequal(newfields, oldfields)
-                error("$(modeloptions.paramstype) is already defined with fields $oldfields, so it cannot be redefined with fields $newfields.")
-            end
-            if !issetequal(newtypes, oldtypes)
-                error("$(modeloptions.paramstype) has the same fields $oldfields as an existing definition, but it has types $oldtypes, insted of the $newtypes.")
-            end
-        end
-    end
-
+    eval(_inputparams_expr(modeloptions,verbose))
+    eval(_params_expr(modeloptions,verbose))
     model = _generatecode_model_struct(modeloptions)
     verbose && @info(model)
     eval(model)
     constructor = _generatecode_model_constructor(modeloptions)
     verbose && @info(constructor)
     eval(constructor)
-
-    eval(quote
-        has_sites(::Type{<:$(modeloptions.name)}) = $(modeloptions.has_sites)
-        function Base.show(io::IO, model::$(modeloptions.name))
-            return eosshow(io, model)
-        end
-        Base.length(model::$(modeloptions.name)) = Base.length(model.components)
-    end)
-    if modeloptions.has_groups
-        eval(quote
-            has_groups(::Type{<:$(modeloptions.name)}) = true
-            function Base.show(io::IO, mime::MIME"text/plain", model::$(modeloptions.name))
-                return gc_eosshow(io, mime, model)
-            end
-            molecular_weight(model::$(modeloptions.name), z = SA[1.0]) = group_molecular_weight(model.groups, mw(model), z)
-        end)
-    else
-        eval(quote
-            has_groups(::Type{<:$(modeloptions.name)}) = false
-            function Base.show(io::IO, mime::MIME"text/plain", model::$(modeloptions.name))
-                return eosshow(io, mime, model)
-            end
-            molecular_weight(model::$(modeloptions.name), z = SA[1.0]) = comp_molecular_weight(mw(model), z)
-        end)
-    end
-    eval(:(modelmembers(model::$(modeloptions.name)) = $([member.name for member in modeloptions.members])))
+    eval(_has_sites_expr(modeloptions))
+    eval(_short_show_expr(modeloptions))
+    eval(_length_expr(modeloptions))
+    eval(_has_groups_expr(modeloptions))
+    eval(_modelmember_expr(modeloptions))
 end
 
 is_splittable(::Vector{ModelMapping}) = false
 
 export ModelMapping, ModelMember, ParamField, ModelOptions, createmodel, updateparams!
+
+macro createmodel2(modeloptions_expr,verbose_expr = false)
+    verbose = verbose_val(verbose_expr)
+    modeloptions = @eval $modeloptions_expr
+    modeloptions isa ModelOptions || throw(error("input model options not a ModelOptions struct."))
+
+    verbose && @info("Generating model code for " * String(modeloptions.name))
+    inputparams = _inputparams_expr(modeloptions,verbose) |> Base.remove_linenums!
+    params = _params_expr(modeloptions,verbose) |> Base.remove_linenums!
+    model = _generatecode_model_struct(modeloptions) |> Base.remove_linenums!
+    constructor = _generatecode_model_constructor(modeloptions)  |> Base.remove_linenums!
+    sites = _has_sites_expr(modeloptions) |> Base.remove_linenums!
+    _length =  _length_expr(modeloptions) |> Base.remove_linenums!
+    short_show = _short_show_expr(modeloptions) |> Base.remove_linenums!
+    groups = _has_groups_expr(modeloptions) |> Base.remove_linenums!
+    modelmember = _modelmember_expr(modeloptions) |> Base.remove_linenums!
+    res =  quote
+        $inputparams
+        $params
+        $model
+        $constructor
+        $sites
+        $short_show
+        $_length
+        $groups
+        $modelmember
+    end  |> Base.remove_linenums!
+
+
+    verbose && println(res)
+    return ∅_expr
+end
+
+function verbose_val(v::Expr)
+    sym = v.args[1]
+    val = v.args[2]
+    if sym !== :verbose
+        throw(error("incorrect keyword: expected verbose, got", string(sym)))
+    end
+    if !isa(val,Bool)
+        throw(error("incorrect value: expected verbose::Bool, got", string(typeof(val))))
+    end
+    return val
+end
+
+verbose_val(v::Bool) = v
+
+#= code generated by the createmodel function (via @createmodel2 macro)
+begin
+    struct sPCSAFT{M1} <: (Clapeyron.sPCSAFTModel where M1 <: IdealModel)
+        components::Vector{String}
+        sites::SiteParam
+        inputparams::PCSAFTInputParam
+        params::PCSAFTParam
+        mappings::Vector{ModelMapping}
+        idealmodel::M1
+        assoc_options::AssocOptions
+        references::Vector{String}
+    end
+    function sPCSAFT(components::Union{String, Vector{String}}; 
+        userlocations::Vector{String} = String[], 
+        usergrouplocations::Vector{String} = String[], 
+        groupdefinitions::Vector{GroupDefinition} = GroupDefinition[],
+         verbose::Bool = false,
+        param_options::ParamOptions = ParamOptions(String[], String[], ["dipprnumber", "smiles"], "species", "source", "site", "groups", true, Dict("e" => "n_e", "e2" => "n_e2", "e1" => "n_e1", "H" => "n_H"),true, "~|~"),
+        assoc_options::AssocOptions = AssocOptions(1.0e-12, 1.0e-12, 1000, 0.5, :sparse_nocombining), 
+        idealmodel::Union{IdealModel, Type{<:IdealModel}} = BasicIdeal, 
+        idealmodel_usergrouplocations = String[], 
+        idealmodel_groupdefinitions = GroupDefinition[], 
+        _overwritelocations::Union{Vector{String}, Nothing} = nothing, 
+        _overwritegrouplocations::Union{Vector{String}, Nothing} = nothing, 
+        _initialisedmodels::Dict{Symbol, Dict{Symbol,Any}} = Dict{Symbol, Dict{Symbol, Any}}(:_ => Dict{Symbol, Any}()), _namespace::String = "", 
+        _accumulatedparams::Dict{String, ClapeyronParam} = Dict{String, ClapeyronParam}(), 
+        _ismembermodel::Bool = false)
+
+        mappings = ModelMapping[ModelMapping([:m], [:segment], identity, Any[], Any[]), ModelMapping([:sigma], [:sigma], Clapeyron.sigma_LorentzBerthelot ∘ Clapeyron.var"#416#417"(), Any[], Any[]), ModelMapping([:epsilon, :k], [:epsilon], Clapeyron.epsilon_LorentzBerthelot, Any[], Any[])]
+        
+        locations = ["SAFT/PCSAFT/sPCSAFT/", "properties/molarmass.csv"]
+        
+        if !(isnothing(_overwritelocations))
+            locations = _overwritelocations
+        end
+        (rawparams, sites) = getparams(components, locations, param_options; userlocations, verbose)
+        merge!(_accumulatedparams, merge(rawparams, _accumulatedparams))
+        (inputparams, params) = _initparams(components, PCSAFTInputParam, PCSAFTParam, _accumulatedparams, mappings, _namespace)
+        overwritelocations = nothing
+        overwritegrouplocations = nothing
+        idealmodel = _initmodel(idealmodel, components, :sPCSAFT, :idealmodel, userlocations, idealmodel_usergrouplocations, idealmodel_groupdefinitions, overwritelocations, overwritegrouplocations, _initialisedmodels, "", _accumulatedparams, verbose)
+        if !_ismembermodel
+            (_initialisedmodels[:_])[:idealmodel] = idealmodel
+        end
+        references = ["10.1021/ie020753p"]
+        model = sPCSAFT(components, sites, inputparams, params, mappings, idealmodel, assoc_options, references)
+        updateparams!(model; updatemembers = false)
+        return model
+    end
+    has_sites(::Type{<:sPCSAFT}) = begin
+            true
+        end
+    begin
+        function Base.show(io::IO, model::sPCSAFT)
+            return eosshow(io, model)
+        end
+    end
+    Base.length(model::sPCSAFT) = begin
+            Base.length(model.components)
+        end
+        
+    begin
+        has_groups(::Type{<:sPCSAFT}) = begin
+                false
+            end
+        function Base.show(io::IO, mime::MIME"text/plain", model::sPCSAFT)
+            return eosshow(io, mime, model)
+        end
+        molecular_weight(model::sPCSAFT, z = SA[1.0]) = begin
+            comp_molecular_weight(mw(model), z)
+        end
+    end
+    modelmembers(model::sPCSAFT) = begin
+            (:idealmodel,)
+        end
+end
+
+=#

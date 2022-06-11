@@ -1,39 +1,35 @@
 """
     SingleParam{T}
-
 Struct designed to contain single parameters. Basically a vector with some extra info.
-
 ## Creation:
 ```julia-repl
 julia> mw = SingleParam("molecular weight",["water","ammonia"],[18.01,17.03])
 SingleParam{Float64}("molecular weight") with 2 components:
  "water" => 18.01
  "ammonia" => 17.03
-
 julia> mw.values
 2-element Vector{Float64}:
  18.01
  17.03
-
 julia> mw.components
 2-element Vector{String}:
  "water"
  "ammonia"
-
 julia> mw2 = SingleParam(mw,"new name")
 SingleParam{Float64}("new name") with 2 components:
  "water" => 18.01
  "ammonia" => 17.03
+<<<<<<< HEAD
 
 julia> has_oxygen = [true,false]; has_o = SingleParam(mw2, has_oxygen)
+=======
+julia> has_oxigen = [true,false]; has_o = SingleParam(mw2,has_oxigen)
+>>>>>>> remotes/origin/estimation
 SingleParam{Bool}("new name") with 2 components:
  "water" => true
  "ammonia" => false
-
 ```
-
 ## Example usage in models:
-
 ```
 function molecular_weight(model, molar_frac)
     mw = model.params.mw.values
@@ -111,6 +107,39 @@ function SingleParam(
         sources,
     )
 end
+
+#indexing
+
+Base.@propagate_inbounds Base.getindex(param::SingleParameter{T,<:AbstractVector{T}},i::Int) where T = param.values[i]
+Base.setindex!(param::SingleParameter, val, i) = setindex!(param.values, val, i)
+
+#broadcasting
+Base.size(param::SingleParameter) = size(param.values)
+Base.broadcastable(param::SingleParameter) = param.values
+Base.BroadcastStyle(::Type{<:SingleParameter}) = Broadcast.Style{SingleParameter}()
+
+#copyto!
+function Base.copyto!(dest::SingleParameter, src) #general, just copies the values, used in a .= f.(a)
+    Base.copyto!(dest.values, x)
+    return dest
+end
+
+function Base.copyto!(dest::SingleParameter, src::SingleParameter) #used to set params
+    #key check
+    dest.components == src.components || throw(DimensionMismatch("components of source and destination single parameters are not the same for $dest"))
+    copyto!(dest.values, src.values)
+    dest.ismissingvalues .= src.ismissingvalues
+    return dest
+end
+
+#linear algebra
+
+LinearAlgebra.dot(param::SingleParameter, x::Union{<:AbstractVector,<:Number}) = dot(param.values, x)
+LinearAlgebra.dot(x::Union{<:AbstractVector,<:Number}, param::SingleParameter) = dot(x, param.values)
+
+components(x::SingleParameter) = x.components
+
+SingleParam(name, components,values, missingvals, src, sourcecsv) = SingleParameter(name, components,values, missingvals, src, sourcecsv)
 
 # Legacy format without groups
 function SingleParam(
