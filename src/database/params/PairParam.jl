@@ -47,9 +47,9 @@ struct PairParameter{T,V<:AbstractMatrix{T},D} <: ClapeyronParam
     sources::Vector{String}
 end
 
-const PairParam{T} = PairParameter{T, Matrix{T}, SubArray{T, 1, Vector{T}, Tuple{StepRange{Int64, Int64}}, true}} where T
+const PairParam{T} = PairParameter{T,Matrix{T}} where T
 
-PairParam(name, components, groups, grouptype, values, symmetric, missingvals, src, sourcecsv) = PairParameter(name, components, groups, grouptype, values, symmetric, missingvals, src, sourcecsv)
+PairParam(name, components, groups, grouptype, values, symmetric, ismissingvals, sourcecsvs, sources) = PairParameter(name, components, groups, grouptype, values, symmetric, ismissingvals, sourcecsvs, sources)
 
 # Legacy format without groups
 function PairParam(
@@ -68,7 +68,6 @@ function PairParam(
     return PairParameter(
         name,
         components,
-        components,
         nothing,
         _values,
         symmetric,
@@ -76,9 +75,9 @@ function PairParam(
         sourcecsvs,
         sources,
     )
-const PairParam{T} = PairParameter{T,Matrix{T}} where T
+end
 
-#indexing
+# Indexing
 
 Base.@propagate_inbounds Base.getindex(param::PairParameter{T,<:AbstractMatrix{T}}, i::Int) where T = param.values[i,i]
 Base.@propagate_inbounds Base.getindex(param::PairParameter{T,<:AbstractMatrix{T}}, i::Int, j::Int) where T = param.values[i,j]
@@ -88,13 +87,11 @@ function Base.setindex!(param::PairParameter, val, i, j)
     param.symmetric && setindex!(param.values, val, j, i)
 end
 
-#Broadcasting
-
+# Broadcasting
 Base.broadcastable(param::PairParameter) = param.values
 Base.BroadcastStyle(::Type{<:PairParameter}) = Broadcast.Style{PairParameter}()
 
-#copyto!
-
+# copyto!
 function Base.copyto!(param::PairParameter, x)
     Base.copyto!(param.values, x)
     return param
@@ -118,7 +115,6 @@ function Base.copyto!(dest::PairParameter, src::PairParameter) #used to set para
 end
 
 Base.size(param::PairParameter) = size(param.values)
-
 components(x::PairParameter) = x.components
 
 # Unsafe constructor
@@ -353,21 +349,6 @@ function Base.convert(
     )
 end
 
-# Broadcasting utilities
-Base.broadcastable(param::PairParameter) = param.values
-    return PairParam(
-        param.name,
-        param.components,
-        param.groups,
-        param.grouptype,
-        values,
-        param.symmetric,
-        param.ismissingvalues,
-        param.sourcecsvs,
-        param.sources
-    )
-end
-
 # Pack vectors
 function pack_vectors(param::PairParameter{<:AbstractVector})
     return PairParam(
@@ -387,7 +368,6 @@ const PackedSparsePairParam{T} = Clapeyron.PairParameter{SubArray{T, 1, Vector{T
 true}, PackedVectorsOfVectors.PackedVectorOfVectors{Vector{Int64}, Vector{T}, SubArray{T, 1, Vector{T}, Tuple{UnitRange{Int64}}, true}}}} where T
 
 # Operations
-
 function Base.:(+)(param::PairParameter, x::Number)
     values = param.values .+ x
     return PairParam(

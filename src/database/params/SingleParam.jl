@@ -108,17 +108,15 @@ function SingleParam(
     )
 end
 
-#indexing
-
+# Indexing
 Base.@propagate_inbounds Base.getindex(param::SingleParameter{T,<:AbstractVector{T}},i::Int) where T = param.values[i]
 Base.setindex!(param::SingleParameter, val, i) = setindex!(param.values, val, i)
 
-#broadcasting
 Base.size(param::SingleParameter) = size(param.values)
 Base.broadcastable(param::SingleParameter) = param.values
 Base.BroadcastStyle(::Type{<:SingleParameter}) = Broadcast.Style{SingleParameter}()
 
-#copyto!
+# copyto!
 function Base.copyto!(dest::SingleParameter, src) #general, just copies the values, used in a .= f.(a)
     Base.copyto!(dest.values, x)
     return dest
@@ -132,7 +130,7 @@ function Base.copyto!(dest::SingleParameter, src::SingleParameter) #used to set 
     return dest
 end
 
-#linear algebra
+# Linear algebra
 
 LinearAlgebra.dot(param::SingleParameter, x::Union{<:AbstractVector,<:Number}) = dot(param.values, x)
 LinearAlgebra.dot(x::Union{<:AbstractVector,<:Number}, param::SingleParameter) = dot(x, param.values)
@@ -350,9 +348,6 @@ function Base.convert(
         param.sourcecsv
     )
 end
-
-# Broadcasting utilities
-Base.broadcastable(param::SingleParameter) = param.values
 
 # Pack vectors
 const PackedVectorSingleParam{T} = Clapeyron.SingleParameter{SubArray{T, 1, Vector{T}, Tuple{UnitRange{Int64}}, true}, PackedVectorsOfVectors.PackedVectorOfVectors{Vector{Int64}, Vector{T}, SubArray{T, 1, Vector{T}, Tuple{UnitRange{Int64}}, true}}}

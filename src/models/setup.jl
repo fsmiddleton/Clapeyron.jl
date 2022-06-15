@@ -168,7 +168,7 @@ Part of `ModelOptions`. This is used to specify the relevant parameters and thei
 """
 struct ParamField
     name::Symbol
-    type::DataType
+    type::Union{DataType,UnionAll}
 end
 
 """

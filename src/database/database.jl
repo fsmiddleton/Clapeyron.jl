@@ -251,7 +251,7 @@ function packageparams(
     if param ∉ param_options.ignore_missing_singleparams && any(ismissingvalues)
         error("Missing values exist in single parameter ", param, ": ", value, ".")
     end
-    return SingleParam(
+    return SingleParameter(
         param,
         components,
         groups,
