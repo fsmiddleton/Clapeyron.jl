@@ -35,7 +35,7 @@ function alpha(model, x)
 end
 ```
 """
-struct PairParameter{T,V<:AbstractMatrix{T},D} <: ClapeyronParam
+struct PairParameter{T,V<:AbstractMatrix{T}} <: ClapeyronParam
     name::String
     components::Vector{String}
     groups::Vector{String}
@@ -67,6 +67,7 @@ function PairParam(
     end
     return PairParameter(
         name,
+        components,
         components,
         nothing,
         _values,
