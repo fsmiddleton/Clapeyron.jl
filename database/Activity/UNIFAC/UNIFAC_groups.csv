@@ -1,124 +1,126 @@
 Clapeyron Database File,
 SAFTgammaMie Groups,
 species,groups
-ethane,"[""CH3"" => 2]"
-propane,"[""CH3"" => 2, ""CH2"" => 1]"
-butane,"[""CH3"" => 2, ""CH2"" => 2]"
-isobutane,"[""CH3"" => 3, ""CH"" => 1]"
-pentane,"[""CH3"" => 2, ""CH2"" => 3]"
-hexane,"[""CH3"" => 2, ""CH2"" => 4]"
-heptane,"[""CH3"" => 2, ""CH2"" => 5]"
-octane,"[""CH3"" => 2, ""CH2"" => 6]"
-nonane,"[""CH3"" => 2, ""CH2"" => 7]"
-decane,"[""CH3"" => 2, ""CH2"" => 8]"
-undecane,"[""CH3"" => 2, ""CH2"" => 9]"
-pentadecane,"[""CH3"" => 2, ""CH2"" => 13]"
-eicosane,"[""CH3"" => 2, ""CH2"" => 18]"
-pentacosane,"[""CH3"" => 2, ""CH2"" => 23]"
-triacontane,"[""CH3"" => 2, ""CH2"" => 28]"
-ethyl acetate,"[""CH3""=>2,""COO""=>1,""CH2""=>1]"
-propyl acetate,"[""CH3""=>2,""COO""=>1,""CH2""=>2]"
-butyl acetate,"[""CH3""=>2,""COO""=>1,""CH2""=>3]"
-pentyl acetate,"[""CH3""=>2,""COO""=>1,""CH2""=>4]"
-hexyl acetate,"[""CH3""=>2,""COO""=>1,""CH2""=>5]"
-heptyl acetate,"[""CH3""=>2,""COO""=>1,""CH2""=>6]"
-cyclohexane,"[""CY-CH2"" => 6]"
-methane,"[""CH4""=>1]"
-carbon dioxide,"[""CO2""=>1]"
-methanol,"[""CH3OH""=>1]"
-ethanol,"[""CH2""=>1,""CH3""=>1,""OH (P)""=>1]"
-acetic acid,"[""CH3""=>1,""COOH""=>1]"
-water,"[""H2O""=>1]"
-benzene,"[""ACH"" => 6]"
-2-propanol,"[""CH3""=>2,""OH (S)""=>1,""CH""=>1]"
-1propanol,["CH2"=>2,"CH3"=>1,"OH (P)"=>1]
-1butanol,["CH2"=>3,"CH3"=>1,"OH (P)"=>1]
-1pentanol,	["CH2"=>4,"CH3"=>1,"OH (P)"=>1]
-1hexanol,["CH2"=>5,"CH3"=>1,"OH (P)"=>1]
-1heptanol,	["CH2"=>6,"CH3"=>1,"OH (P)"=>1]
-1octanol,	["CH2"=>7,"CH3"=>1,"OH (P)"=>1]
-1nonanol,	["CH2"=>8,"CH3"=>1,"OH (P)"=>1]
-1decanol,	["CH2"=>9,"CH3"=>1,"OH (P)"=>1]
-cyclopentane,	["CY-CH2" => 5]
-cycloheptane,	["CY-CH2" => 7]
-cyclooctane,	["CY-CH2" => 8]
-toluene,	["ACH" => 5, "CCOO" => 1]
-propanone,	["CH3"=>1,"CH3CO"=>1]
-butanone,	["CH3"=>1,"CH3CO"=>1, "CH2"=>1]
-2pentanone,	["CH3"=>1,"CH3CO"=>1, "CH2"=>2]
-2hexanone,["CH3"=>1,"CH3CO"=>1, "CH2"=>3]
-2heptanone,	["CH3"=>1,"CH3CO"=>1, "CH2"=>4]
-2octanone,["CH3"=>1,"CH3CO"=>1, "CH2"=>5]
-methanoic acid 	,	["HCOOH"=>1]
-ethanoic acid	,	["CH3"=>1,"COOH"=>1]
-propanoic acid 	,	["CH3"=>1,"CH2" => 1,"COOH"=>1]
-butanoic acid 	,	["CH3"=>1,"CH2" => 2,"COOH"=>1]
-pentanoic acid 	,	["CH3"=>1,"CH2" => 3,"COOH"=>1]
-hexanoic acid 	,	["CH3"=>1,"CH2" => 4,"COOH"=>1]
-heptanoic acid 	,	["CH3"=>1,"CH2" => 5,"COOH"=>1]
-octanoic acid 	,	["CH3"=>1,"CH2" => 6,"COOH"=>1]
-nonanoic acid 	,	["CH3"=>1,"CH2" => 7,"COOH"=>1]
-decanoic acid 	,	["CH3"=>1,"CH2" => 8,"COOH"=>1]
-ethanal	,	["CH3"=>1, "HCO"=>1]
-propanal 	,	["CH3"=>1,"CH2"=>1, "HCO"=>1]
-butanal 	,	["CH3"=>1,"CH2"=>2, "HCO"=>1]
-pentanal 	,	["CH3"=>1,"CH2"=>3, "HCO"=>1]
-hexanal 	,	["CH3"=>1,"CH2"=>4, "HCO"=>1]
-heptanal	,	["CH3"=>1,"CH2"=>5, "HCO"=>1]
-octanal	,	["CH3"=>1,"CH2"=>6, "HCO"=>1]
-nonanal	,	["CH3"=>1,"CH2"=>7, "HCO"=>1]
-decanal	,	["CH3"=>1,"CH2"=>8, "HCO"=>1]
-3Pentanone	,	["CH3"=>2,"CH2CO"=>1, "CH2"=>1]
-3hexanone 	,	["CH3"=>2,"CH2CO"=>1, "CH2"=>2]
-3heptanone	,	["CH3"=>2,"CH2CO"=>1, "CH2"=>3]
-3octanone	,	["CH3"=>2,"CH2CO"=>1, "CH2"=>4]
-ethene	,	["C=C"=>2]
-propene	,	["CH3"=>1, "CH2=CH"=>1]
-1butene	,	["CH3"=>1,"CH2"=>1, "CH2=CH"=>1]
-1pentene 	,	["CH3"=>1,"CH2"=>2, "CH2=CH"=>1]
-1hexene 	,	["CH3"=>1,"CH2"=>3, "CH2=CH"=>1]
-1heptene 	,	["CH3"=>1,"CH2"=>4, "CH2=CH"=>1]
-1octene 	,	["CH3"=>1,"CH2"=>5, "CH2=CH"=>1]
-1nonene	,	["CH3"=>1,"CH2"=>6, "CH2=CH"=>1]
-1decene 	,	["CH3"=>1,"CH2"=>7, "CH2=CH"=>1]
-aniline	,	["ACH"=>5, "ACNH2"=>1]
-benzylamine	,	["ACH"=>6, "CH2NH2"=>1]
-propylamine	,	["CH2NH2"=>1, "CH2"=>1,"CH3"=>1]
-butylamine	,	["CH2NH2"=>1, "CH2"=>2,"CH3"=>1]
-pentylamine	,	["CH2NH2"=>1, "CH2"=>3,"CH3"=>1]
-hexylamine	,	["CH2NH2"=>1, "CH2"=>4,"CH3"=>1]
-heptylamine	,	["CH2NH2"=>1, "CH2"=>5,"CH3"=>1]
-octylamine	,	["CH2NH2"=>1, "CH2"=>6,"CH3"=>1]
-nonylamine	,	["CH2NH2"=>1, "CH2"=>7,"CH3"=>1]
-decylamine	,	["CH2NH2"=>1, "CH2"=>8,"CH3"=>1]
-2propanol	,	["CH3"=>2,"OH (S)"=>1,"CH"=>1]
-2butanol	,	["CH3"=>2,"OH (S)"=>1,"CH"=>1, "CH2"=>1]
-2pentanol 	,	["CH3"=>2,"OH (S)"=>1,"CH"=>1, "CH2"=>2]
-2hexanol 	,	["CH3"=>2,"OH (S)"=>1,"CH"=>1, "CH2"=>3]
-2heptanol	,	["CH3"=>2,"OH (S)"=>1,"CH"=>1, "CH2"=>4]
-2octanol 	,	["CH3"=>2,"OH (S)"=>1,"CH"=>1, "CH2"=>5]
-2nonanol	,	["CH3"=>2,"OH (S)"=>1,"CH"=>1, "CH2"=>6]
-isobutanol	,	["CH3"=>2,"OH (P)"=>1,"CH"=>1, "CH2"=>1]
-tertbutylalchol	,	["CH3"=>2,"OH (T)"=>1,"C"=>1, "CH2"=>1]
-methyl formate	,	["CH3"=>1,"HCOO"=>1]
-methyl acetate 	,	["CH3"=>2,"HCOO"=>1]
-methyl propionate	,	["CH3"=>2,"HCOO"=>1,"CH2"=>1]
-methyl butyrate 	,	["CH3"=>2,"HCOO"=>1,"CH2"=>2]
-methyl benzoate	,	["CH3"=>1,"COO"=>1,"ACH" => 5, "AC"=>1]
-ethyl benzoate	,	["CH3"=>1,"CH2"=>1,"COO"=>1,"ACH" => 5, "AC"=>1]
-ethyl methanoate	,	["CH3"=>1,"HCOO"=>1,"CH2"=>1]
-ethyl ethanoate	,	["CH3"=>2,"COO"=>1,"CH2"=>1]
-ethyl propionate 	,	["CH3"=>2,"COO"=>1,"CH2"=>2]
-ethyl butyrate 	,	["CH3"=>2,"COO"=>1,"CH2"=>3]
-ethyl pentanoate 	,	["CH3"=>2,"COO"=>1,"CH2"=>4]
-ethyl hexanoate	,	["CH3"=>2,"COO"=>1,"CH2"=>5]
-ethyl heptanoate	,	["CH3"=>2,"COO"=>1,"CH2"=>6]
-ethyl octanoate	,	["CH3"=>2,"COO"=>1,"CH2"=>7]
-propyl formate	,	["CH3"=>1,"HCOO"=>1,"CH2"=>2]
-propyl acetate	,	["CH3"=>2,"COO"=>1,"CH2"=>2]
-propyl propionate	,	["CH3"=>2,"COO"=>1,"CH2"=>3]
-propyl butanoate	,	["CH3"=>2,"COO"=>1,"CH2"=>4]
-butyl formate	,	["CH3"=>1,"HCOO"=>1,"CH2"=>3]
-butyl acetate	,	["CH3"=>2,"COO"=>1,"CH2"=>3]
-butyl butyrate	,	["CH3"=>2,"COO"=>1,"CH2"=>4]
-pentyl acetate	,	["CH3"=>2,"COO"=>1,"CH2"=>4]
+ethane,"["CH3" => 2]"
+propane,"["CH3" => 2,"CH2" => 1]"
+butane,"["CH3" => 2,"CH2" => 2]"
+isobutane,"["CH3" => 3,"CH" => 1]"
+pentane,"["CH3" => 2,"CH2" => 3]"
+hexane,"["CH3" => 2,"CH2" => 4]"
+heptane,"["CH3" => 2,"CH2" => 5]"
+octane,"["CH3" => 2,"CH2" => 6]"
+nonane,"["CH3" => 2,"CH2" => 7]"
+decane,"["CH3" => 2,"CH2" => 8]"
+undecane,"["CH3" => 2,"CH2" => 9]"
+dodecane,"["CH3" => 2,"CH2" => 10]"
+pentadecane,"["CH3" => 2,"CH2" => 13]"
+eicosane,"["CH3" => 2,"CH2" => 18]"
+pentacosane,"["CH3" => 2,"CH2" => 23]"
+triacontane,"["CH3" => 2,"CH2" => 28]"
+ethyl acetate,"["CH3"=>2,"COO"=>1,"CH2"=>1]"
+propyl acetate,"["CH3"=>2,"COO"=>1,"CH2"=>2]"
+butyl acetate,"["CH3"=>2,"COO"=>1,"CH2"=>3]"
+pentyl acetate,"["CH3"=>2,"COO"=>1,"CH2"=>4]"
+hexyl acetate,"["CH3"=>2,"COO"=>1,"CH2"=>5]"
+heptyl acetate,"["CH3"=>2,"COO"=>1,"CH2"=>6]"
+cyclohexane,"["CY-CH2" => 6]"
+methane,"["CH4"=>1]"
+carbon dioxide,"["CO2"=>1]"
+methanol,"["CH3OH"=>1]"
+ethanol,"["CH2"=>1,"CH3"=>1,"OH (P)"=>1]"
+1propanol,"["CH2"=>2,"CH3"=>1,"OH (P)"=>1]"
+acetic acid,"["CH3"=>1,"COOH"=>1]"
+water,"["H2O"=>1]"
+benzene,"["ACH" => 6]"
+2-propanol,"["CH3"=>2,"OH (S)"=>1,"CH"=>1]"
+1propanol,"["CH2"=>2,"CH3"=>1,"OH (P)"=>1]"
+1butanol,"["CH2"=>3,"CH3"=>1,"OH (P)"=>1]"
+1pentanol,"["CH2"=>4,"CH3"=>1,"OH (P)"=>1]"
+1hexanol,"["CH2"=>5,"CH3"=>1,"OH (P)"=>1]"
+1heptanol,"["CH2"=>6,"CH3"=>1,"OH (P)"=>1]"
+1octanol,"["CH2"=>7,"CH3"=>1,"OH (P)"=>1]"
+1nonanol,"["CH2"=>8,"CH3"=>1,"OH (P)"=>1]"
+1decanol ,"["CH2"=>9,"CH3"=>1,"OH (P)"=>1]"
+cyclopentane,"["CY-CH2" => 5]"
+cycloheptane ,"["CY-CH2" => 7]"
+cyclooctane ,"["CY-CH2" => 8]"
+toluene,"["ACH" => 5, "CCOO" => 1]"
+propanone,"["CH3"=>1,"CH3CO"=>1]"
+butanone,"["CH3"=>1,"CH3CO"=>1, "CH2"=>1]"
+2pentanone,"["CH3"=>1,"CH3CO"=>1, "CH2"=>2]"
+2hexanone,"["CH3"=>1,"CH3CO"=>1, "CH2"=>3]"
+2heptanone ,"["CH3"=>1,"CH3CO"=>1, "CH2"=>4]"
+2octanone ,"["CH3"=>1,"CH3CO"=>1, "CH2"=>5]"
+methanoic acid ,"["HCOOH"=>1]"
+ethanoic acid,"["CH3"=>1,"COOH"=>1]"
+propanoic acid ,"["CH3"=>1,"CH2" => 1,"COOH"=>1]"
+butanoic acid ,"["CH3"=>1,"CH2" => 2,"COOH"=>1]"
+pentanoic acid ,"["CH3"=>1,"CH2" => 3,"COOH"=>1]"
+hexanoic acid ,"["CH3"=>1,"CH2" => 4,"COOH"=>1]"
+heptanoic acid ,"["CH3"=>1,"CH2" => 5,"COOH"=>1]"
+octanoic acid ,"["CH3"=>1,"CH2" => 6,"COOH"=>1]"
+nonanoic acid ,"["CH3"=>1,"CH2" => 7,"COOH"=>1]"
+decanoic acid ,"["CH3"=>1,"CH2" => 8,"COOH"=>1]"
+ethanal,"["CH3"=>1, "HCO"=>1]"
+propanal ,"["CH3"=>1,"CH2"=>1, "HCO"=>1]"
+butanal ,"["CH3"=>1,"CH2"=>2, "HCO"=>1]"
+pentanal ,"["CH3"=>1,"CH2"=>3, "HCO"=>1]"
+hexanal ,"["CH3"=>1,"CH2"=>4, "HCO"=>1]"
+heptanal,"["CH3"=>1,"CH2"=>5, "HCO"=>1]"
+octanal,"["CH3"=>1,"CH2"=>6, "HCO"=>1]"
+nonanal,"["CH3"=>1,"CH2"=>7, "HCO"=>1]"
+decanal,"["CH3"=>1,"CH2"=>8, "HCO"=>1]"
+3Pentanone,"["CH3"=>2,"CH2CO"=>1, "CH2"=>1]"
+3hexanone ,"["CH3"=>2,"CH2CO"=>1, "CH2"=>2]"
+3heptanone,"["CH3"=>2,"CH2CO"=>1, "CH2"=>3]"
+3octanone,"["CH3"=>2,"CH2CO"=>1, "CH2"=>4]"
+ethene,"["C=C"=>2]"
+propene,"["CH3"=>1, "CH2=CH"=>1]"
+1butene,"["CH3"=>1,"CH2"=>1, "CH2=CH"=>1]"
+1pentene ,"["CH3"=>1,"CH2"=>2, "CH2=CH"=>1]"
+1hexene ,"["CH3"=>1,"CH2"=>3, "CH2=CH"=>1]"
+1heptene ,"["CH3"=>1,"CH2"=>4, "CH2=CH"=>1]"
+1octene ,"["CH3"=>1,"CH2"=>5, "CH2=CH"=>1]"
+1nonene,"["CH3"=>1,"CH2"=>6, "CH2=CH"=>1]"
+1decene ,"["CH3"=>1,"CH2"=>7, "CH2=CH"=>1]"
+aniline,"["ACH"=>5, "ACNH2"=>1]"
+benzylamine,"["ACH"=>6, "CH2NH2"=>1]"
+propylamine,"["CH2NH2"=>1, "CH2"=>1,"CH3"=>1]"
+butylamine,"["CH2NH2"=>1, "CH2"=>2,"CH3"=>1]"
+pentylamine,"["CH2NH2"=>1, "CH2"=>3,"CH3"=>1]"
+hexylamine,"["CH2NH2"=>1, "CH2"=>4,"CH3"=>1]"
+heptylamine,"["CH2NH2"=>1, "CH2"=>5,"CH3"=>1]"
+octylamine,"["CH2NH2"=>1, "CH2"=>6,"CH3"=>1]"
+nonylamine,"["CH2NH2"=>1, "CH2"=>7,"CH3"=>1]"
+decylamine,"["CH2NH2"=>1, "CH2"=>8,"CH3"=>1]"
+2propanol,"["CH3"=>2,"OH (S)"=>1,"CH"=>1]"
+2butanol,"["CH3"=>2,"OH (S)"=>1,"CH"=>1, "CH2"=>1]"
+2pentanol ,"["CH3"=>2,"OH (S)"=>1,"CH"=>1, "CH2"=>2]"
+2hexanol ,"["CH3"=>2,"OH (S)"=>1,"CH"=>1, "CH2"=>3]"
+2heptanol,"["CH3"=>2,"OH (S)"=>1,"CH"=>1, "CH2"=>4]"
+2octanol ,"["CH3"=>2,"OH (S)"=>1,"CH"=>1, "CH2"=>5]"
+2nonanol,"["CH3"=>2,"OH (S)"=>1,"CH"=>1, "CH2"=>6]"
+isobutanol,"["CH3"=>2,"OH (P)"=>1,"CH"=>1, "CH2"=>1]"
+tertbutylalchol,"["CH3"=>2,"OH (T)"=>1,"C"=>1, "CH2"=>1]"
+methyl formate,"["CH3"=>1,"HCOO"=>1]"
+methyl acetate ,"["CH3"=>2,"HCOO"=>1]"
+methyl propionate,"["CH3"=>2,"HCOO"=>1,"CH2"=>1]"
+methyl butyrate ,"["CH3"=>2,"HCOO"=>1,"CH2"=>2]"
+methyl benzoate,"["CH3"=>1,"COO"=>1,"ACH" => 5, "AC"=>1]"
+ethyl benzoate,"["CH3"=>1,"CH2"=>1,"COO"=>1,"ACH" => 5, "AC"=>1]"
+ethyl methanoate,"["CH3"=>1,"HCOO"=>1,"CH2"=>1]"
+ethyl ethanoate,"["CH3"=>2,"COO"=>1,"CH2"=>1]"
+ethyl propionate ,"["CH3"=>2,"COO"=>1,"CH2"=>2]"
+ethyl butyrate ,"["CH3"=>2,"COO"=>1,"CH2"=>3]"
+ethyl pentanoate ,"["CH3"=>2,"COO"=>1,"CH2"=>4]"
+ethyl hexanoate,"["CH3"=>2,"COO"=>1,"CH2"=>5]"
+ethyl heptanoate,"["CH3"=>2,"COO"=>1,"CH2"=>6]"
+ethyl octanoate,"["CH3"=>2,"COO"=>1,"CH2"=>7]"
+propyl formate,"["CH3"=>1,"HCOO"=>1,"CH2"=>2]"
+propyl acetate,"["CH3"=>2,"COO"=>1,"CH2"=>2]"
+propyl propionate,"["CH3"=>2,"COO"=>1,"CH2"=>3]"
+propyl butanoate,"["CH3"=>2,"COO"=>1,"CH2"=>4]"
+butyl formate,"["CH3"=>1,"HCOO"=>1,"CH2"=>3]"
+butyl acetate,"["CH3"=>2,"COO"=>1,"CH2"=>3]"
+butyl butyrate,"["CH3"=>2,"COO"=>1,"CH2"=>4]"
+pentyl acetate,"["CH3"=>2,"COO"=>1,"CH2"=>4]"
